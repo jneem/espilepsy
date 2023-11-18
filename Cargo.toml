@@ -1,14 +1,27 @@
 [package]
-name = "esp32c3-template"
+name = "espilepsy"
 version = "0.1.0"
 authors = ["Joe Neeman <joeneeman@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-hal = { package = "esp32c3-hal", version = "0.9.0" }
-esp-backtrace = { version = "0.7.0", features = ["esp32c3", "panic-handler", "print-uart"] }
-esp-println = { version = "0.5.0", features = ["esp32c3"] }
+embassy-executor = "0.3.3"
+embassy-futures = "0.1.1"
+embassy-sync = "0.4.0"
+embassy-time = "0.1.5"
+hal = { package = "esp32c3-hal", version = "0.13.0", features = ["embassy", "async", "embassy-time-systick"] }
+static_cell = "2.0.0"
+esp-println = { version = "0.7.0", features = ["esp32c3"] }
+
+[dev-dependencies]
+esp-backtrace = { version = "0.9.0", features = ["esp32c3", "panic-handler", "print-uart"] }
+esp-println = { version = "0.7.0", features = ["esp32c3"] }
+embassy-executor = { version = "0.3.3", features = ["nightly", "executor-thread", "arch-riscv32", "integrated-timers"] }
+portable-atomic = { version = "1.5", features = ["critical-section"] }
 
 [profile.dev]
 opt-level = 2
+
+# [patch.crates-io]
+# esp-hal-common = { path = "/home/jneeman/programming/esp/esp-hal/esp-hal-common" }

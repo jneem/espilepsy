@@ -1,10 +1,8 @@
-[[language]]
-name = "rust"
-
-[language.config]
-checkOnSave.command = "clippy"
+[language-server.rust-analyzer.config]
+checkOnSave = true
+check.commands = "clippy"
 # By default, checkOnSave runs with the `--all-targets` option, which generates
 # spurious warnings about a missing `test` crate. I'm not exactly sure why,
 # but maybe because there's no native target? Anyway, this removes the warnings.
-checkOnSave.allTargets = false
-checkOnSave.extraArgs = [ "--target", "riscv32imc-unknown-none-elf"]
+check.allTargets = false
+check.extraArgs = [ "--target", "riscv32imc-unknown-none-elf", "--examples"]
