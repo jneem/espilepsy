@@ -34,7 +34,7 @@ type BlinkyReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, espilepsy::Cmd, 
 type LedPin = GpioPin<Output<PushPull>, 7>;
 
 #[main]
-async fn main(spawner: Spawner) -> ! {
+async fn main(spawner: Spawner) {
     let peripherals = Peripherals::take();
     let system = peripherals.SYSTEM.split();
     let clocks = singleton!(

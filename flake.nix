@@ -24,6 +24,7 @@
             rust-toolchain
             rust-analyzer
             cargo-espflash
+            cargo-expand
             cargo-outdated
             taplo
           ];

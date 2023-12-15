@@ -76,7 +76,7 @@ fn write_byte(out: &mut [u32], mut b: u8) {
 }
 
 pub async fn task<'ch, M: RawMutex>(
-    mut rmt_channel: hal::rmt::Channel0<0>,
+    mut rmt_channel: hal::rmt::Channel<0>,
     receiver: CmdReceiver<'ch, M>,
 ) {
     hal::interrupt::enable(
