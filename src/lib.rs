@@ -3,7 +3,10 @@
 use embassy_futures::select::{select, Either};
 use embassy_sync::{blocking_mutex::raw::RawMutex, channel};
 use embassy_time::{Duration, Timer};
-use hal::rmt::{asynch::TxChannelAsync, PulseCode};
+use hal::{
+    rmt::{asynch::TxChannelAsync, PulseCode},
+    Async,
+};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Color {
@@ -76,7 +79,7 @@ fn write_byte(out: &mut [u32], mut b: u8) {
 }
 
 pub async fn task<'ch, M: RawMutex>(
-    mut rmt_channel: hal::rmt::Channel<0>,
+    mut rmt_channel: hal::rmt::Channel<Async, 0>,
     receiver: CmdReceiver<'ch, M>,
 ) {
     hal::interrupt::enable(

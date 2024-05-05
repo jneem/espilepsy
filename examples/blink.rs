@@ -12,11 +12,10 @@ use espilepsy::Color;
 use hal::{
     clock::{ClockControl, Clocks},
     embassy,
-    gpio::{GpioPin, Output, PushPull},
+    gpio::{GpioPin, Output, PushPull, IO},
     peripherals::Peripherals,
     prelude::*,
-    rmt::{TxChannelConfig, TxChannelCreator},
-    Rmt, IO,
+    rmt::{Rmt, TxChannelConfig, TxChannelCreatorAsync},
 };
 use static_cell::StaticCell;
 
@@ -45,7 +44,7 @@ async fn main(spawner: Spawner) {
 
     embassy::init(
         &clocks,
-        hal::systimer::SystemTimer::new(peripherals.SYSTIMER),
+        hal::systimer::SystemTimer::new_async(peripherals.SYSTIMER),
     );
     hal::interrupt::enable(
         hal::peripherals::Interrupt::RMT,
@@ -75,7 +74,7 @@ async fn led(
     recv: BlinkyReceiver<'static>,
     clocks: &'static Clocks<'static>,
 ) {
-    let rmt = Rmt::new(rmt, 80u32.MHz(), clocks).unwrap();
+    let rmt = Rmt::new_async(rmt, 80u32.MHz(), clocks).unwrap();
     let channel = rmt
         .channel0
         .configure(
