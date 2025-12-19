@@ -4,7 +4,8 @@ use embassy_futures::select::{select, Either};
 use embassy_sync::{blocking_mutex::raw::RawMutex, channel};
 use embassy_time::{Duration, Timer};
 use hal::{
-    rmt::{asynch::TxChannelAsync, PulseCode},
+    gpio::Level,
+    rmt::{self, PulseCode},
     Async,
 };
 
@@ -39,30 +40,15 @@ const LONG: u16 = 68;
 
 // We send a "one" bit by setting the pin high for a long time and low for
 // a short time.
-const ONE: PulseCode = PulseCode {
-    level1: true,
-    length1: LONG,
-    level2: false,
-    length2: SHORT,
-};
+const ONE: PulseCode = PulseCode::new(hal::gpio::Level::High, LONG, hal::gpio::Level::Low, SHORT);
 
 // We send a "zero" bit by setting the pin high for a short time and low for
 // a long time.
-const ZERO: PulseCode = PulseCode {
-    level1: true,
-    length1: SHORT,
-    level2: false,
-    length2: LONG,
-};
+const ZERO: PulseCode = PulseCode::new(Level::High, SHORT, Level::Low, LONG);
 
 // We send a "reset" code by setting the pin low for 50µs. That's 4000 cycles
 // at 80MHz.
-const RESET: PulseCode = PulseCode {
-    level1: false,
-    length1: 0,
-    level2: false,
-    length2: 4000,
-};
+const RESET: PulseCode = PulseCode::new(Level::Low, 0, Level::Low, 4000);
 
 // Convert a byte into a pulse code. Store the result in the buffer `out`, which
 // must be 8 bytes long.
@@ -79,7 +65,7 @@ fn write_byte(out: &mut [u32], mut b: u8) {
 }
 
 pub async fn task<'ch, M: RawMutex>(
-    mut rmt_channel: hal::rmt::Channel<Async, 0>,
+    mut rmt_channel: hal::rmt::Channel<'ch, Async, rmt::Tx>,
     receiver: CmdReceiver<'ch, M>,
 ) {
     hal::interrupt::enable(
