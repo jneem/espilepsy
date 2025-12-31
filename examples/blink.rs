@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 #![feature(type_alias_impl_trait)]
+#![feature(impl_trait_in_assoc_type)]
 
 use embassy_executor::Spawner;
 use embassy_sync::{
@@ -10,12 +11,11 @@ use embassy_sync::{
 use embassy_time::{Duration, Timer};
 use espilepsy::Color;
 use hal::{
-    clock::{ClockControl, Clocks},
-    embassy,
-    gpio::{GpioPin, Output, PushPull, IO},
-    peripherals::Peripherals,
-    prelude::*,
-    rmt::{Rmt, TxChannelConfig, TxChannelCreatorAsync},
+    gpio::Output,
+    interrupt::software::SoftwareInterruptControl,
+    rmt::{Rmt, TxChannelConfig, TxChannelCreator},
+    time::Rate,
+    timer::timg::TimerGroup,
 };
 use static_cell::StaticCell;
 
@@ -30,31 +30,32 @@ macro_rules! singleton {
 
 type BlinkyChannel = Channel<CriticalSectionRawMutex, espilepsy::Cmd, 2>;
 type BlinkyReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, espilepsy::Cmd, 2>;
-type LedPin = GpioPin<Output<PushPull>, 7>;
+type LedPin<'a> = Output<'a>;
 
-#[main]
+esp_bootloader_esp_idf::esp_app_desc!();
+
+#[esp_rtos::main]
 async fn main(spawner: Spawner) {
-    let peripherals = Peripherals::take();
-    let system = peripherals.SYSTEM.split();
-    let clocks = singleton!(
-        ClockControl::boot_defaults(system.clock_control).freeze(),
-        Clocks
-    );
-    let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
+    let config = hal::Config::default();
+    let peripherals = hal::init(config);
 
-    embassy::init(
-        &clocks,
-        hal::systimer::SystemTimer::new_async(peripherals.SYSTIMER),
-    );
     hal::interrupt::enable(
         hal::peripherals::Interrupt::RMT,
         hal::interrupt::Priority::Priority1,
     )
     .unwrap();
 
-    let pin = io.pins.gpio7.into_push_pull_output();
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
+    let sw_int = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timg0.timer0, sw_int.software_interrupt0);
+
+    let pin = Output::new(
+        peripherals.GPIO7,
+        hal::gpio::Level::High,
+        hal::gpio::OutputConfig::default(),
+    );
     let ch = singleton!(Channel::new(), BlinkyChannel);
-    spawner.must_spawn(led(peripherals.RMT, pin, ch.receiver(), &*clocks));
+    spawner.must_spawn(led(peripherals.RMT, pin, ch.receiver()));
 
     ch.send(espilepsy::Cmd::Blinky {
         color0: Color { r: 20, g: 0, b: 0 },
@@ -69,21 +70,14 @@ async fn main(spawner: Spawner) {
 
 #[embassy_executor::task]
 async fn led(
-    rmt: hal::peripherals::RMT,
-    pin: LedPin,
+    rmt: hal::peripherals::RMT<'static>,
+    pin: LedPin<'static>,
     recv: BlinkyReceiver<'static>,
-    clocks: &'static Clocks<'static>,
 ) {
-    let rmt = Rmt::new_async(rmt, 80u32.MHz(), clocks).unwrap();
+    let rmt = Rmt::new(rmt, Rate::from_mhz(80u32)).unwrap().into_async();
     let channel = rmt
         .channel0
-        .configure(
-            pin,
-            TxChannelConfig {
-                clk_divider: 1,
-                ..TxChannelConfig::default()
-            },
-        )
+        .configure_tx(pin, TxChannelConfig::default().with_clk_divider(1))
         .unwrap();
     espilepsy::task(channel, recv).await
 }
