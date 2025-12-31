@@ -6,10 +6,6 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Blinking WS2812b LEDs with esp-hal and embassy"
 
-[features]
-# embassy-time-systick = ["hal/embassy-time-systick-16mhz"]
-# embassy-time-timg0 = ["hal/embassy-time-timg0"]
-
 [dependencies]
 embassy-executor = "0.9.1"
 embassy-futures = "0.1.2"
@@ -18,12 +14,14 @@ embassy-time = { version = "0.5.0" }
 hal = { package = "esp-hal", version = "1.0.0", features = ["esp32c3", "unstable"] }
 
 [dev-dependencies]
-esp-backtrace = { version = "0.18.1", features = ["esp32c3", "panic-handler", "println"] }
-esp-println = { version = "0.16.1", features = ["esp32c3"] }
 embassy-executor = { version = "0.9.1", features = ["nightly"] }
-static_cell = "2.1.1"
 embassy-time = { version = "0.5", features = ["generic-queue-8"] }
+esp-backtrace = { version = "0.18.1", features = ["esp32c3", "panic-handler", "println"] }
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32c3"] }
+esp-println = { version = "0.16.1", features = ["esp32c3"] }
+esp-rtos = { version = "0.2.0", features = ["embassy", "esp32c3"] }
 hal = { package = "esp-hal", version = "1.0.0", features = ["esp32c3", "unstable"] }
+static_cell = "2.1.1"
 
 [profile.dev]
 opt-level = 2

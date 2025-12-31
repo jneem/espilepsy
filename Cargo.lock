@@ -381,6 +381,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "esp-bootloader-esp-idf"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02a56964ab5479ac20c9cf76fa3b0d3f2233b20b5d8554e81ef5d65f63c20567"
+dependencies = [
+ "cfg-if",
+ "document-features",
+ "embedded-storage",
+ "esp-config",
+ "esp-hal-procmacros",
+ "esp-metadata-generated",
+ "esp-rom-sys",
+ "jiff",
+ "strum",
+]
+
+[[package]]
 name = "esp-config"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -501,6 +518,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "esp-rtos"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "162ec711c8d06e79c67b75d01595539e86b0aac209643af98ca87a12250428b3"
+dependencies = [
+ "cfg-if",
+ "document-features",
+ "embassy-executor",
+ "embassy-sync 0.7.2",
+ "embassy-time-driver",
+ "embassy-time-queue-utils",
+ "esp-config",
+ "esp-hal",
+ "esp-hal-procmacros",
+ "esp-metadata-generated",
+ "esp-sync",
+ "portable-atomic",
+]
+
+[[package]]
 name = "esp-sync"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -587,15 +624,17 @@ dependencies = [
 
 [[package]]
 name = "espilepsy"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "embassy-executor",
  "embassy-futures",
  "embassy-sync 0.7.2",
  "embassy-time",
  "esp-backtrace",
+ "esp-bootloader-esp-idf",
  "esp-hal",
  "esp-println",
+ "esp-rtos",
  "static_cell",
 ]
 
@@ -746,6 +785,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 
 [[package]]
+name = "jiff"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a87d9b8105c23642f50cbbae03d1f75d8422c5cb98ce7ee9271f7ff7505be6b8"
+dependencies = [
+ "jiff-static",
+ "log",
+ "portable-atomic",
+ "portable-atomic-util",
+ "serde_core",
+]
+
+[[package]]
+name = "jiff-static"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b787bebb543f8969132630c51fd0afab173a86c6abae56ff3b9e5e3e3f9f6e58"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "litrs"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -810,6 +873,15 @@ name = "portable-atomic"
 version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f59e70c4aef1e55797c2e8fd94a4f2a973fc972cfde0e0b05f683667b0cd39dd"
+
+[[package]]
+name = "portable-atomic-util"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8a2f0d8d040d7848a709caf78912debcc3f33ee4b3cac47d73d1e1069e83507"
+dependencies = [
+ "portable-atomic",
+]
 
 [[package]]
 name = "proc-macro-crate"

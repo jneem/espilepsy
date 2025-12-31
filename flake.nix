@@ -23,7 +23,7 @@
           nativeBuildInputs = with pkgs; [
             rust-toolchain
             rust-analyzer
-            cargo-espflash
+            espflash
             cargo-expand
             cargo-outdated
             taplo
